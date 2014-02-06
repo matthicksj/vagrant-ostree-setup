@@ -1,0 +1,8 @@
+Vagrant Setup
+=============
+
+This is a simple script to convert a qcow2 ostree image to a Vagrant image.
+You should be able to run the setup script and it will copy the qcow2 image,
+crack it open and add the required users and SSH setup for Vagrant.  It will
+then use the templates in this project for the libvirt provider defaults
+and package everything up as a Vagrant box that you can import.
