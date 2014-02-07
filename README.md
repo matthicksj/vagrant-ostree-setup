@@ -9,11 +9,7 @@ and package everything up as a Vagrant box that you can import.
 
 Usage
 ------
-To convert an image, first you'll need to temporarily disable SELinux:
-
-    sudo setenforce 0
-
-Next, you run the setup.sh script with a qcow2 image:
+To convert an image, you run the setup.sh script with a qcow2 image:
 
     sudo ./setup.sh <path to qcow2 image>
 

@@ -22,11 +22,6 @@ if [ "$(whoami)" != "root" ]; then
 	exit 1
 fi
 
-if [ "$(getenforce)" != "Permissive" ]; then
-	echo "Sorry, you must set SELinux to permissive (e.g. setenforce 0) run this script"
-	exit 1
-fi
-
 if [ -z "$IMG" ]; then
     echo "No image was supplied"
     echo "Usage: $0 <path to qcow2 image>"
