@@ -71,7 +71,7 @@ fi
 echo "Setting up vagrant user"
 VAGRANT_HOME=$MNT/ostree/deploy/fb2docker/var/vagranthome
 mkdir -p $VAGRANT_HOME/.ssh
-curl -s https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub > $VAGRANT_HOME/.ssh/authorized_keys
+curl -s https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > $VAGRANT_HOME/.ssh/authorized_keys
 chmod 700 $VAGRANT_HOME/.ssh
 chmod 600 $VAGRANT_HOME/.ssh/authorized_keys
 
@@ -84,7 +84,7 @@ echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> $CHROOT_DIR/etc/sudoers
 echo "Setting up root user"
 ROOT_HOME=$MNT/ostree/deploy/fb2docker/var/roothome
 mkdir -p $ROOT_HOME/.ssh
-curl -s https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub > $ROOT_HOME/.ssh/authorized_keys
+curl -s https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > $ROOT_HOME/.ssh/authorized_keys
 chmod 700 $ROOT_HOME/.ssh
 chmod 600 $ROOT_HOME/.ssh/authorized_keys
 
