@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
     config.vm.network :forwarded_port, guest: i, host: i
   end
 
-  config.vm.synced_folder './', '/vagrant', type: 'rsync'
+  config.vm.synced_folder './', '/vagrant', type: 'rsync', disabled: true
 
   config.vm.provider :virtualbox do |v|
     v.memory = 4096
