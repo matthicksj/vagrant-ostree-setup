@@ -12,6 +12,14 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder './', '/vagrant', type: 'rsync'
 
+  config.vm.provider :virtualbox do |v|
+    v.memory = 4096
+    v.cpus =4
+    v.customize ["modifyvm", :id, "--cpus", "4"]
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+
   config.vm.provider :libvirt do |libvirt|
     libvirt.cpus = 4
     libvirt.memory = 4096

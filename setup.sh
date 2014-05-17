@@ -51,7 +51,7 @@ echo "Mounting image at $MNT"
 guestmount -a "$IMG" -m /dev/sda3:/ -m /dev/sda1:/boot $MNT
 
 # Locate the core changeroot location by finding the first instance of a 'usr' dir
-CHROOT_DIR=$(find $MNT -type d -name "usr" | head -n 1 | sed "s^/usr^^")
+CHROOT_DIR="$MNT/ostree/deploy/rh-atomic-controller/current"
 echo "Chroot dir: $CHROOT_DIR"
 
 # Safeguard
