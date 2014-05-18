@@ -1,14 +1,9 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "atomic"
 
+  config.vm.network "forwarded_port", guest: 1001, host: 10000
   config.vm.network "forwarded_port", guest: 43273, host: 43273
-  config.vm.network "forwarded_port", guest: 6060, host: 2225
   config.vm.network "forwarded_port", guest: 14000, host: 14000
-  config.vm.network "forwarded_port", guest: 2181, host: 2181
-  config.vm.network "forwarded_port", guest: 1001, host: 1001
-  for i in 4000..4050
-    config.vm.network :forwarded_port, guest: i, host: i
-  end
 
   config.vm.synced_folder './', '/vagrant', type: 'rsync', disabled: true
 
