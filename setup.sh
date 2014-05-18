@@ -69,32 +69,47 @@ fi
 
 # Setup the vagrant user home directory
 echo "Setting up vagrant user"
-VAGRANT_HOME=$MNT/ostree/deploy/fb2docker/var/vagranthome
+VAGRANT_HOME=$MNT/ostree/deploy/rh-atomic-controller/var/home/vagrant
 mkdir -p $VAGRANT_HOME/.ssh
 curl -s https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > $VAGRANT_HOME/.ssh/authorized_keys
 chmod 700 $VAGRANT_HOME/.ssh
 chmod 600 $VAGRANT_HOME/.ssh/authorized_keys
 
-# Now go into chroot and add the user
-chroot $CHROOT_DIR useradd -d /var/vagranthome -M -u 501 vagrant
-chown -R 501:501 $VAGRANT_HOME
-echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> $CHROOT_DIR/etc/sudoers
+# Setup an init script to finish vagrant setup
+SYSTEMD_DIR=$CHROOT_DIR/usr/lib/systemd
 
-# Setup root user
-echo "Setting up root user"
-ROOT_HOME=$MNT/ostree/deploy/fb2docker/var/roothome
-mkdir -p $ROOT_HOME/.ssh
-curl -s https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > $ROOT_HOME/.ssh/authorized_keys
-chmod 700 $ROOT_HOME/.ssh
-chmod 600 $ROOT_HOME/.ssh/authorized_keys
+# Create the actual user, set ownership and fix SELinux permissions when the system starts
+# Otherwise, all the files touched will get the wrong permissions and context information
+# and it causes all sorts of weird issues.
+# Create the service itself
+cat > $SYSTEMD_DIR/system/vagrant-init.service << EOF
+[Unit]
+Description=Relabel home directories on startup
+Before=sshd.service
 
-# System setup
-echo "Applying various system settings"
-chroot $CHROOT_DIR sed -i 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
-chroot $CHROOT_DIR sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config
-chroot $CHROOT_DIR sed -i 's/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sed -i 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
+ExecStart=/usr/bin/sed -i 's/#PermitRootLogin/PermitRootLogin/' /etc/ssh/sshd_config
+ExecStart=/usr/bin/sed -i 's/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers
+ExecStart=/usr/bin/echo 'vagrant ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+ExecStart=/usr/sbin/useradd -M vagrant
+ExecStart=/usr/bin/chown -R vagrant:vagrant /var/home/vagrant
+ExecStart=/usr/bin/chcon -u system_u -t home_root_t /var/home
+ExecStart=/usr/bin/chcon -u unconfined_u -t user_home_dir_t /var/home/vagrant
+ExecStart=/usr/bin/chcon -R -u unconfined_u -t ssh_home_t /var/home/vagrant/.ssh
+ExecStart=/usr/sbin/restorecon /etc/ssh/sshd_config
+ExecStart=rm /etc/systemd/system/multi-user.target.wants/vagrant-init.service
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable the service
+ln -s $SYSTEMD_DIR/system/vagrant-init.service $CHROOT_DIR/etc/systemd/system/multi-user.target.wants/vagrant-init.service
 
 # Unmount
+sync
 fusermount -u $MNT
 
 # Allow umount and flushing of data to occur
